@@ -1,6 +1,6 @@
 lab:
 	rm lab
-	gcc -w -o lab interface.c && ./lab
+	gcc -w -o lab lab.c && ./lab
 
 clean:
 	rm -f src/idx.dat
