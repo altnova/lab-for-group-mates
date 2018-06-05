@@ -1,0 +1,42 @@
+name1
+1
+union1
+subjec1
+adds1
+89850009898
+name2
+2
+union2
+subject2
+addss2
+89890001122
+anna chain
+2
+univer.
+mathem.
+london
+12345
+tom C
+3
+univer
+russian
+london
+123456
+kosti gus
+1
+uniss
+his. of arts
+paris
+12341
+parastoo
+1
+school
+modern art
+kerman
+998
+ben CD
+0
+uni M
+something
+moscow
+654321
