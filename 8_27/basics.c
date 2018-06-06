@@ -272,3 +272,10 @@ int field_cmp(teacher a, teacher b, int field)
 		return (a.tel > b.tel) ? 1 : 0;
 	}
 }
+
+/*
+long zseek(int d, long j, int f) {
+	unsigned int h = (unsigned int)(j >> 32), l = SetFilePointer((HANDLE)d, (unsigned int)j, &h,);
+	return ((long)h <<32) + l;
+}
+*/

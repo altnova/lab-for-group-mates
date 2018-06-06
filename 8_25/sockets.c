@@ -3,7 +3,20 @@
 #include <string.h>
 #include "basics.c"
 
-void rec_add(teacher abc, FILE *db);
+//////////////////////////////////////////////////////////////////////////
+//							ДОБАВЛЕНИЕ									//
+
+void rec_add(plant plnt, FILE *db) 
+{
+	fseek(db, 0, SEEK_END);
+	if (plnt.id == -1) {
+		inc_idx(0);
+		fread(&plnt.id, sizeof(int), 1, idx);
+	}
+	printf("создана запись [%d]\n", plnt.id);
+	fwrite(&plnt, sizeof(plant), 1, db);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 //						ПОИСК СТРУКТУРЫ									//		
@@ -28,17 +41,14 @@ void rec_delete(int id, FILE *db)
 	int ptr = find_rec(id, db);
 	char c = 1;
 
-	if (ptr == -1) {
+	if (ptr == -1) 
 		printf("нет такой записи\n");
-		return;
+	else {
+		inc_idx(1);
+		fseek(db, ptr + sizeof(int), SEEK_SET);
+		fwrite(&c, 1, sizeof(char), db);
+		printf("запись %d удалена\n", id);
 	}
-	inc_idx(2);
-	inc_idx(1);
-	// inc_idx(2);
-	fseek(db, ptr + sizeof(int), SEEK_SET);
-	fwrite(&c, 1, sizeof(char), db);
-	printf("запись %d удалена\n", id);
-	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -46,37 +56,36 @@ void rec_delete(int id, FILE *db)
 
 void rec_edit(int id, int field, char* line, FILE *db)
 {
-	teacher abc;
+	plant plnt;
 	long long i;
 	int k, ptr = find_rec(id, db);
 
 	if (ptr == -1)
 		return;
 
-	abc = read_struct(ptr, db);
+	plnt = read_struct(ptr, db);
 	rec_delete(id, db);
 
 	switch (field) {
 		case 1:
-			strcpy(abc.name, line);
+			strcpy(plnt.name, line);
 			break;
 		case 2:
-			abc.qual = atoi(line);
+			strcpy(plnt.range, line);
 			break;
 
 		case 3:
-			strcpy(abc.un, line);
+			plnt.age = atoi(line);
 			break;
 		case 4:
-			strcpy(abc.subj, line);
+			plnt.bloom = y_n(line);
 			break;
-		case 5:
-			strcpy(abc.adrs, line);
-			break;
-		case 6:
-			abc.tel = atoll(line);
 	}	
-	rec_add(abc, db);
+
+	plnt.del = 0;
+	plnt.id = -1;
+
+	rec_add(plnt, db);
 } 
 
 
@@ -85,19 +94,19 @@ void rec_edit(int id, int field, char* line, FILE *db)
 
 void rec_search(int field, char* line, FILE *db)
 {
-	teacher abc;
+	plant plnt;
 	int ptr = 0, par;
 	rewind(db);
 	while (!feof(db)) {
-		abc = read_struct(ptr, db);
+		plnt = read_struct(ptr, db);
 		if (feof(db)) {
 			BAR("\n");
 			return;
 		}
-		par = scan_struct(abc, field, line);
-		if (par && !abc.del) 
+		par = scan_struct(plnt, field, line);
+		if (par && !plnt.del) 
 			print_table(ptr, db);
-		ptr += sizeof(teacher);
+		ptr += sizeof(plant);
 	}
 	BAR("\n");
 }
@@ -105,18 +114,20 @@ void rec_search(int field, char* line, FILE *db)
 //////////////////////////////////////////////////////////////////////////
 //							ЗАГРУЗКА 									//
 
-void csv_load(char* filename, FILE* db)
+void txt_load(char* filename, FILE* db)
 {
-	teacher abc;
+	plant plnt;
 	int i = 0;
 	FILE *f = fopen(filename, "r");
 	if (!f) {
 		printf("нет такого файла\n");
 		return ;
 	}
-	// обнуление индекса
-	null_idx();
 
+
+	fwrite(&i, sizeof(int), 1, idx);
+	fwrite(&i, sizeof(int), 1, idx);
+	rewind(idx);
 	if (db) {
 		fclose(db);
 		db = fopen("src/db.dat", "w+b");
@@ -125,12 +136,13 @@ void csv_load(char* filename, FILE* db)
 	rewind(f);
 
 	while(!(feof(f))) {
-		abc = get_struct(f);
 
-		if (!feof(f) && !abc.del) { 
-			abc.id = ++i;
+		plnt = get_struct(f);
+
+		if (!feof(f) && !plnt.del) { 
+			plnt.id = ++i;
 			inc_idx(0);
-			write_struct(abc, db);
+			write_struct(plnt, db);
 	    }
 	}
 	rewind(idx);
@@ -144,7 +156,7 @@ void csv_load(char* filename, FILE* db)
 void list(FILE *db)
 {
 	int ptr;
-	teacher abc;
+	plant plnt;
 
 	status();
 	printf("\n");
@@ -152,48 +164,11 @@ void list(FILE *db)
 	rewind(db);
 
 	for (ptr = ftell(db); !(feof(db)); ptr = ftell(db)) {
-		fread(&abc, sizeof(teacher), 1, db);
-		if (!abc.del && !feof(db)) 
+		fread(&plnt, sizeof(plant), 1, db);
+		if (!plnt.del && !feof(db)) 
 			print_table(ptr, db);
 	}
 	BAR("\n");
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-//							ДОБАВЛЕНИЕ									//
-
-void rec_add(teacher abc, FILE *db) 
-{
-	int ptr;
-	indx a;
-	teacher d;
-	fseek(db, 0, SEEK_END);
-	abc.del = 0;
-	inc_idx(0);
-	rewind(idx);
-	fread(&a, sizeof(indx), 1, idx);
-	abc.id = a.id;
-	rewind(db);
-
-	if (a.free) {
-		d.del = 0;
-		dec_idx(2);
-		while (!d.del && !feof(db)) {
-			ptr = ftell(db);
-			fread(&d, sizeof(teacher), 1 , db);
-		}
-		if (feof(db))
-			fseek(db, 0, SEEK_END);
-		fseek(db, ptr, SEEK_SET);
-	}
-	else 
-		fseek(db, 0, SEEK_END);
-
-	fwrite(&abc, sizeof(teacher), 1, db);
-
-	printf("создана запись [%d]\n", abc.id);
-	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,28 +178,29 @@ void rec_sort(int field, FILE* db)
 {
 	indx in;
 	int i, j, size;
-	teacher *array, abc;
+	plant *array, plnt;
 	rewind(idx);
 	fread(&in, sizeof(indx), 1, idx);
 	size = in.id - in.del;
-	array = malloc(sizeof(teacher) * size);
+	array = malloc(sizeof(plant) * size);
 	status();
 	rewind(db);
 
 	// заполнение массива структур из базы
 	for (i = 0; i < size; i++) {
-		fread(&array[i], sizeof(teacher), 1, db);
+		fread(&array[i], sizeof(plant), 1, db);
 		if (array[i].del)
 			i--;
 	}
+
 
 	// 	пузырьковая сортировка
 	for (i = 0; i < size - 1; i++) {
 		for (j = 0; j < size - i - 1; j++) {
 			if (field_cmp(array[j], array[j+1], field) > 0) {
-				abc = array[j + 1];
+				plnt = array[j + 1];
 				array[j + 1] = array[j];
-				array[j] = abc;
+				array[j] = plnt;
 			}
 		}
 	}
@@ -234,9 +210,7 @@ void rec_sort(int field, FILE* db)
 		print_table(find_rec(array[i].id, db), db);
 
 	BAR("\n");
+
 	free(array);
 }
-
-//////////////////////////////////////////////////////////////////////////
-//							ЧИСТКА										//
 
