@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "basics.c"
+#include "basics.h"
 
 //////////////////////////////////////////////////////////////////////////
 //							ДОБАВЛЕНИЕ									//
@@ -182,7 +182,7 @@ void rec_sort(int field, FILE* db)
 	rewind(idx);
 	fread(&in, sizeof(indx), 1, idx);
 	size = in.id - in.del;
-	array = malloc(sizeof(plant) * size);
+	array = (plant*)malloc(sizeof(plant) * size);
 	status();
 	rewind(db);
 

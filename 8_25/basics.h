@@ -42,7 +42,7 @@ char* get_line(FILE *filename)
 {
 	int i;
 	char *line, c = '1';
-	line = malloc(sizeof(char)* 250);
+	line = (char*)malloc(sizeof(char)* 250);
 
 	for (i = 0; c != '\n' && i < 250 && c != '\0' && !feof(filename); i++) {
 		c = getc(filename);
@@ -170,12 +170,12 @@ char scan_struct(plant plnt, int field, char* line)
 
 		switch (field) {
 			case 1:
-			if (strcasestr((char*)plnt.name, line) != NULL)
+			if (strstr((char*)plnt.name, line) != NULL)
 				return 1;
 			break;
 
 			case 2:
-			if (strcasestr((char*)plnt.range, line) != NULL)
+			if (strstr((char*)plnt.range, line) != NULL)
 				return 1;
 
 			case 3:
