@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "sockets.c"
+#include "sockets.h"
 #include <stdlib.h>
 #include <string.h>
 

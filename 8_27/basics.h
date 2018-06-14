@@ -46,7 +46,7 @@ char* get_line(FILE *filename)
 {
 	int i;
 	char *line, c = '1';
-	line = malloc(sizeof(char)* 150);
+	line = (char*)malloc(sizeof(char)* 150);
 
 	for (i = 0; c != '\n' && i < 150 && c != '\0' && !feof(filename); i++) {
 		c = getc(filename);
@@ -182,22 +182,22 @@ char scan_struct(teacher abc, int field, char* line)
 	else {
 		switch (field) {
 			case 1:
-			if (strcasestr((char*)abc.name, line) != NULL)
+			if (strstr((char*)abc.name, line) != NULL)
 				return 1;
 			break;
 
 			case 3:
-			if (strcasestr((char*)abc.un, line) != NULL)
+			if (strstr((char*)abc.un, line) != NULL)
 				return 1;
 			break;
 
 			case 4:
-			if (strcasestr((char*)abc.subj, line) != NULL)
+			if (strstr((char*)abc.subj, line) != NULL)
 				return 1;
 			break;
 
 			case 5:
-			if (strcasestr((char*)abc.adrs, line) != NULL)
+			if (strstr((char*)abc.adrs, line) != NULL)
 				return 1;
 			break;
 		}

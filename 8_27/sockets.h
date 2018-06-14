@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "basics.c"
+#include "basics.h"
 
 void rec_add(teacher abc, FILE *db);
 
@@ -206,7 +206,7 @@ void rec_sort(int field, FILE* db)
 	rewind(idx);
 	fread(&in, sizeof(indx), 1, idx);
 	size = in.id - in.del;
-	array = malloc(sizeof(teacher) * size);
+	array = (teacher*)malloc(sizeof(teacher) * size);
 	status();
 	rewind(db);
 
